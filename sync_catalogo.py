@@ -110,7 +110,7 @@ def write_catalog(catalog: dict[str, Any], channel: str = "cafeterias") -> None:
     json_path, _, _ = catalog_paths(channel)
     serialized = json.dumps(catalog, ensure_ascii=False, indent=2) + "\n"
     temporary = json_path.with_suffix(".json.tmp")
-    temporary.write_text(serialized, encoding="utf-8")
+    temporary.write_text(serialized, encoding="utf-8", newline="\n")
     temporary.replace(json_path)
     write_js_fallback(catalog, channel)
 
@@ -123,7 +123,7 @@ def write_js_fallback(catalog: dict[str, Any], channel: str = "cafeterias") -> N
         f"window.{variable} = {serialized};\n"
     )
     temporary = js_path.with_suffix(".js.tmp")
-    temporary.write_text(content, encoding="utf-8")
+    temporary.write_text(content, encoding="utf-8", newline="\n")
     temporary.replace(js_path)
 
 

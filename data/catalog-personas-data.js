@@ -1,4 +1,4 @@
-// Borrador generado desde data/catalogo-personas.json.
+// Archivo generado desde data/catalogo-personas.json. No editar manualmente.
 window.VESTALIA_DATA_PERSONAS = {
   "meta": {
     "brand": "Vestalia",

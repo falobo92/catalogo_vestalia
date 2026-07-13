@@ -60,5 +60,5 @@ catalog.contact.productMessage = "Hola Vestalia, quisiera comprar {producto} ({f
 
 const json = `${JSON.stringify(catalog, null, 2)}\n`;
 fs.writeFileSync("data/catalogo-personas.json", json);
-fs.writeFileSync("data/catalog-personas-data.js", `// Borrador generado desde data/catalogo-personas.json.\nwindow.VESTALIA_DATA_PERSONAS = ${JSON.stringify(catalog, null, 2)};\n`);
+fs.writeFileSync("data/catalog-personas-data.js", `// Archivo generado desde data/catalogo-personas.json. No editar manualmente.\nwindow.VESTALIA_DATA_PERSONAS = ${JSON.stringify(catalog, null, 2)};\n`);
 console.log(`Catálogo Personas creado con ${catalog.products.length} productos y precios por definir.`);
