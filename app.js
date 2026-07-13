@@ -46,8 +46,8 @@
   if (cloudState) {
     const a4 = $("#pdf-a4-link");
     const mobile = $("#pdf-mobile-link");
-    if (a4) a4.href = "/api/pdf?tipo=a4";
-    if (mobile) mobile.href = "/api/pdf?tipo=movil";
+    if (a4) a4.href = "/c";
+    if (mobile) mobile.href = "/m";
   }
 
   function productCard(product, index = 0) {
@@ -75,8 +75,9 @@
     const tags = (product.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("");
     const isCommercialDescription = product.detailsLabel === "Descripción comercial";
     const detailTitle = isCommercialDescription ? "Descripción" : "Ingredientes y composición";
-    const contactNumber = (data.contact.phone || "").replace(/\D/g, "");
-    const message = encodeURIComponent(`Hola Vestalia, quisiera consultar por ${product.name} (${product.format}).`);
+    const contactNumber = (data.contact.whatsapp || data.contact.phone || "").replace(/\D/g, "");
+    const template = data.contact.productMessage || "Hola Vestalia, quisiera consultar por {producto} ({formato}).";
+    const message = encodeURIComponent(template.replaceAll("{producto}", product.name).replaceAll("{formato}", product.format));
     const whatsappBase = data.contact.whatsappUrl || `https://wa.me/${contactNumber}`;
     const whatsapp = `${whatsappBase}${whatsappBase.includes("?") ? "&" : "?"}text=${message}`;
     return `
@@ -202,7 +203,7 @@
       <section class="care-block"><span aria-hidden="true">❄</span><h3>${escapeHtml(data.meta.conservationTitle || "Guárdalas para después")}</h3><ul>${data.storage.conservation.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>`;
 
     const contact = data.contact;
-    const genericMessage = encodeURIComponent("Hola Vestalia, quisiera consultar por el catálogo para cafeterías.");
+    const genericMessage = encodeURIComponent(contact.genericMessage || "Hola Vestalia, quisiera información para mi cafetería.");
     const contactItems = [
       ["WhatsApp", contact.whatsapp || contact.phone, (() => { const base = contact.whatsappUrl || `https://wa.me/${(contact.whatsapp || contact.phone || "").replace(/\D/g, "")}`; return `${base}${base.includes("?") ? "&" : "?"}text=${genericMessage}`; })()],
       ["Instagram", contact.instagram, contact.instagramUrl],

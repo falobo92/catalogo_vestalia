@@ -6,6 +6,10 @@ test("el catálogo incluido contiene la colección completa", () => {
   const catalog = loadBundledCatalog();
   assert.equal(catalog.products.length, 27);
   assert.equal(catalog.categories.length, 9);
+  assert.equal(catalog.contact.phone, "+56 9 8893 4627");
+  assert.equal(catalog.contact.whatsappUrl, "https://wa.me/56988934627");
+  assert.match(catalog.contact.genericMessage, /información para mi cafetería/);
+  assert.match(catalog.contact.productMessage, /\{producto\}.*\{formato\}/);
   assert.equal(validateCatalog(catalog).products.length, 27);
 });
 

@@ -700,10 +700,12 @@
   "contact": {
     "instagram": "@vestalia_cocina",
     "instagramUrl": "https://www.instagram.com/vestalia_cocina/",
-    "phone": "+56 9 5840 2706",
-    "phoneUrl": "tel:+56958402706",
-    "whatsapp": "+56 9 5840 2706",
-    "whatsappUrl": "https://wa.me/56958402706",
+    "phone": "+56 9 8893 4627",
+    "phoneUrl": "tel:+56988934627",
+    "whatsapp": "+56 9 8893 4627",
+    "whatsappUrl": "https://wa.me/56988934627",
+    "genericMessage": "Hola Vestalia, quisiera información para mi cafetería.",
+    "productMessage": "Hola Vestalia, quisiera consultar por {producto} ({formato}).",
     "email": "vestaliacocina@gmail.com",
     "emailUrl": "mailto:vestaliacocina@gmail.com"
   }

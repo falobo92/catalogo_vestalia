@@ -110,6 +110,9 @@ for index, category_group in enumerate(index_chunks):
       </article>""")
 
 whatsapp_base = DATA["contact"].get("whatsappUrl") or f"https://wa.me/{re.sub(r'\D', '', DATA['contact'].get('whatsapp') or DATA['contact']['phone'])}"
+whatsapp_separator = "&" if "?" in whatsapp_base else "?"
+generic_message = DATA["contact"].get("genericMessage") or "Hola Vestalia, quisiera información para mi cafetería."
+generic_whatsapp = whatsapp_base + whatsapp_separator + "text=" + quote(generic_message)
 
 for product, category, number, first in product_pages:
     if product is None:
@@ -130,8 +133,8 @@ for product, category, number, first in product_pages:
     if extra.lower().startswith("inserto"):
         extra = f"Relleno{extra[len('Inserto'):]}"
     detail_title = "Descripción" if product.get("detailsLabel") == "Descripción comercial" else "Ingredientes"
-    separator = "&" if "?" in whatsapp_base else "?"
-    message = quote(f"Hola Vestalia, quisiera consultar por {product['name']} ({product['format']}).")
+    product_message = DATA["contact"].get("productMessage") or "Hola Vestalia, quisiera consultar por {producto} ({formato})."
+    message = quote(product_message.replace("{producto}", product["name"]).replace("{formato}", product["format"]))
     anchor = f' id="mobile-category-{e(category["id"])}"' if first else ""
     pages.append(f"""
       <article{anchor} class="mobile-page mobile-product" style="--category-color:{category_color(category)}" data-mode="{e(product.get('imageMode', 'contain'))}">
@@ -141,7 +144,7 @@ for product, category, number, first in product_pages:
           <div class="mobile-tags">{tags}</div>
           <div class="mobile-description"><h2>{detail_title}</h2><p>{e(product.get('ingredients'))}</p>{f'<strong>{e(extra)}</strong>' if extra else ''}</div>
           <div class="mobile-meta">{weight}<div><small>Formato</small><strong>{e(product['format'])}</strong></div><div><small>Valor neto</small><strong>{e(product['price'])}</strong></div></div>
-          <a class="mobile-whatsapp" href="{e(whatsapp_base + separator + 'text=' + message)}">Consultar por WhatsApp <span>↗</span></a>
+          <a class="mobile-whatsapp" href="{e(whatsapp_base + whatsapp_separator + 'text=' + message)}">Consultar por WhatsApp <span>↗</span></a>
         </div>
       </article>""")
 
@@ -183,7 +186,7 @@ pages.append(f"""
       <h1>{editorial_title(DATA['meta'].get('contactTitle', '¿Qué ponemos en tu vitrina?'))}</h1>
       <span>{e(DATA['meta'].get('contactText', 'Consulta sabores y disponibilidad.'))}</span>
       <div>
-        <a href="{e(whatsapp_base)}">WhatsApp · {e(DATA['contact'].get('whatsapp') or DATA['contact']['phone'])}</a>
+        <a href="{e(generic_whatsapp)}">WhatsApp · {e(DATA['contact'].get('whatsapp') or DATA['contact']['phone'])}</a>
         <a href="{e(DATA['contact'].get('instagramUrl'))}">{e(DATA['contact']['instagram'])}</a>
         <a href="{e(DATA['contact'].get('emailUrl'))}">{e(DATA['contact']['email'])}</a>
       </div>

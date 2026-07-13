@@ -39,7 +39,7 @@ El primer despliegue permite abrir el catálogo y los PDF incluidos. El editor t
 5. Conecta el recurso a **Production**, **Preview** y **Development**.
 6. Comprueba en **Settings → Environment Variables** que aparece `DATABASE_URL`, `POSTGRES_URL` o `NEON_DATABASE_URL`.
 
-No necesitas ejecutar migraciones: al abrir `/api/catalogo`, Vestalia crea las tablas y carga los 27 productos automáticamente.
+No necesitas ejecutar migraciones: al abrir `/api/catalogo`, Vestalia crea las tablas, carga los 27 productos y comienza en la revisión 0 automáticamente.
 
 ## 3. Crear Vercel Blob
 
@@ -68,13 +68,14 @@ La página genera ambos valores localmente mediante la criptografía del navegad
 ## 5. Primera comprobación
 
 1. Abre la URL `vercel.app` y comprueba portada, filtros, 27 productos y 9 categorías.
-2. Abre `/editor.html`. Debe enviarte a `/login.html`.
+2. Abre `/e` (alias corto de `/editor.html`). Debe enviarte a `/login.html`.
 3. Entra con la contraseña elegida.
-4. Comprueba que aparece **Nube conectada** y la revisión 1.
+4. Comprueba que aparece **Nube conectada** y la revisión 0.
 5. Pulsa **Regenerar PDF**. La primera ejecución puede tardar porque descarga Chromium; las siguientes suelen ser más rápidas.
 6. Abre los enlaces A4 y móvil desde el editor.
 7. Cambia un texto, guarda y comprueba que la revisión aumenta y los PDF quedan marcados como pendientes.
 8. Regenera los PDF y confirma que ambos pasan a la nueva revisión.
+9. Comprueba los enlaces públicos cortos `/c` (A4) y `/m` (móvil).
 
 ## Chromium
 

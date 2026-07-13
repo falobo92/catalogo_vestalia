@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     const payload = await readJson(req, 4 * 1024 * 1024);
     const revision = Number(payload?.revision);
-    if (!Number.isInteger(revision) || revision < 1) {
+    if (!Number.isInteger(revision) || revision < 0) {
       return json(res, 400, { ok: false, error: "La revisión enviada no es válida." });
     }
     const catalog = validateCatalog(payload?.catalog);

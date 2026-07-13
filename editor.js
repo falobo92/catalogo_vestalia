@@ -77,9 +77,10 @@
     const panel = $("#cloud-state");
     panel.hidden = false;
     panel.classList.toggle("pending", pending);
-    panel.innerHTML = `<strong>Catálogo · revisión ${catalogRevision}</strong><span>Guardado ${escapeHtml(formatDate(updatedAt))}</span><strong>PDF · revisión ${pdfRevision || "pendiente"}</strong><span>${pending ? "Los PDF requieren regeneración" : `Actualizados ${escapeHtml(formatDate(pdfUpdatedAt))}`}</span>`;
-    $("#editor-pdf-a4").href = "/api/pdf?tipo=a4";
-    $("#editor-pdf-mobile").href = "/api/pdf?tipo=movil";
+    const pdfLabel = pending && pdfRevision === 0 ? "pendiente" : pdfRevision;
+    panel.innerHTML = `<strong>Catálogo · revisión ${catalogRevision}</strong><span>Guardado ${escapeHtml(formatDate(updatedAt))}</span><strong>PDF · revisión ${pdfLabel}</strong><span>${pending ? "Los PDF requieren regeneración" : `Actualizados ${escapeHtml(formatDate(pdfUpdatedAt))}`}</span>`;
+    $("#editor-pdf-a4").href = "/c";
+    $("#editor-pdf-mobile").href = "/m";
   }
 
   function download(filename, content, type = "application/json") {
@@ -509,6 +510,8 @@
     $("#setting-whatsapp").value = contact.whatsapp || contact.phone || "";
     $("#setting-email").value = contact.email || "";
     $("#setting-whatsapp-url").value = contact.whatsappUrl || "";
+    $("#setting-whatsapp-message").value = contact.genericMessage || "Hola Vestalia, quisiera información para mi cafetería.";
+    $("#setting-whatsapp-product-message").value = contact.productMessage || "Hola Vestalia, quisiera consultar por {producto} ({formato}).";
     $("#setting-contact-eyebrow").value = meta.contactEyebrow || "";
     $("#setting-contact-title").value = meta.contactTitle || "";
     $("#setting-contact-text").value = meta.contactText || "";
@@ -575,6 +578,8 @@
       instagramUrl: $("#setting-instagram-url").value.trim(),
       phone, phoneUrl: phone ? `tel:+${phone.replace(/\D/g, "")}` : "",
       whatsapp, whatsappUrl: !enteredWhatsAppUrl || enteredWhatsAppUrl === previousAutomaticUrl ? automaticWhatsAppUrl : enteredWhatsAppUrl,
+      genericMessage: $("#setting-whatsapp-message").value.trim(),
+      productMessage: $("#setting-whatsapp-product-message").value.trim(),
       email, emailUrl: email ? `mailto:${email}` : ""
     };
     loadProduct(currentIndex);

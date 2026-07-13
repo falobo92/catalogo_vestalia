@@ -5,6 +5,7 @@ from html import escape
 from pathlib import Path
 import json
 import re
+from urllib.parse import quote
 
 try:
     from PIL import Image, ImageFilter, ImageOps
@@ -19,6 +20,12 @@ TRANSPARENT_PRINT_DIR = ROOT / "assets/print-transparent"
 
 def e(value):
     return escape(str(value or ""))
+
+
+def whatsapp_href(message):
+    base = DATA["contact"].get("whatsappUrl") or f"https://wa.me/{re.sub(r'\D', '', DATA['contact'].get('whatsapp') or DATA['contact']['phone'])}"
+    separator = "&" if "?" in base else "?"
+    return f"{base}{separator}text={quote(message)}"
 
 
 def editorial_title(value):
@@ -335,7 +342,7 @@ pages.append(f"""
       <h1>{editorial_title(DATA['meta'].get('contactTitle', '¿Qué ponemos en tu vitrina?'))}</h1>
       <span>{e(DATA['meta'].get('contactText', 'Consulta sabores, disponibilidad y coordinación de despacho.'))}</span>
       <div class="closing-contact">
-        <a href="{e(DATA['contact'].get('whatsappUrl', ''))}">WhatsApp · {e(DATA['contact'].get('whatsapp') or DATA['contact']['phone'])}</a>
+        <a href="{e(whatsapp_href(DATA['contact'].get('genericMessage') or 'Hola Vestalia, quisiera información para mi cafetería.'))}">WhatsApp · {e(DATA['contact'].get('whatsapp') or DATA['contact']['phone'])}</a>
         <a href="{e(DATA['contact'].get('instagramUrl', ''))}">{e(DATA['contact']['instagram'])}</a>
         <a href="{e(DATA['contact'].get('phoneUrl', ''))}">{e(DATA['contact']['phone'])}</a>
         <a href="{e(DATA['contact'].get('emailUrl', ''))}">{e(DATA['contact']['email'])}</a>
