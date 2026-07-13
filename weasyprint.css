@@ -1,0 +1,4 @@
+/* Compatibilidad deliberadamente mínima: la composición usa propiedades
+   soportadas por WeasyPrint 68+ y por Chromium. */
+.pdf-page{page-break-after:always}
+.pdf-page:last-child{page-break-after:auto}

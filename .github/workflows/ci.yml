@@ -1,0 +1,27 @@
+name: Validación
+
+on:
+  push:
+    branches: [main, "agent/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: python -m py_compile servidor.py sync_catalogo.py build_print_static.py build_mobile_static.py generar_pdf.py generar_pdf_movil.py miniaturas.py
+      - run: python sync_catalogo.py
+      - run: git diff --exit-code -- data/catalog-data.js

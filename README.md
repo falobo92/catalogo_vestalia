@@ -158,4 +158,3 @@ La salida es `Vestalia_Catalogo_Movil.pdf`, en proporción vertical 9:16. Tiene 
 El catálogo original no especifica el gramaje de Pistacho premium ni aclara si los 120 g de Ferrero Rocher incluyen el bombón. Los nueve productos incorporados en la propuesta ampliada usan descripciones comerciales y precio “A cotizar”; conviene completar ingredientes, formato, gramaje y alérgenos antes de considerarlos fichas técnicas.
 
 Por tratarse de alimentos, confirma especialmente gluten/trigo, leche, huevo, soja, maní, nueces, almendras, pistacho y avellana, además de posibles trazas y contaminación cruzada.
-

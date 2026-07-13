@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Preparar claves — Vestalia</title>
+  <link rel="icon" href="assets/brand/isotipo.png">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <main class="login-shell">
+    <section class="login-card">
+      <img src="assets/brand/logo-principal.png" alt="Vestalia">
+      <p>Configuración inicial</p>
+      <h1>Crear claves seguras</h1>
+      <form id="setup-form">
+        <label>Contraseña del editor<input id="setup-password" type="password" minlength="12" autocomplete="new-password" required></label>
+        <button type="submit">Generar valores</button>
+      </form>
+      <div id="setup-results" hidden>
+        <label>ADMIN_PASSWORD_HASH<textarea id="password-hash" rows="4" readonly></textarea></label>
+        <button type="button" data-copy="password-hash">Copiar hash</button>
+        <label>SESSION_SECRET<textarea id="session-secret" rows="3" readonly></textarea></label>
+        <button type="button" data-copy="session-secret">Copiar secreto</button>
+      </div>
+      <div id="login-message" role="status" aria-live="polite">Todo se genera en este navegador; la contraseña no se envía al servidor.</div>
+    </section>
+  </main>
+  <script src="setup.js"></script>
+</body>
+</html>

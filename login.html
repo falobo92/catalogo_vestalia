@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11334A">
+  <title>Acceso al editor — Vestalia</title>
+  <link rel="icon" href="assets/brand/isotipo.png">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <main class="login-shell">
+    <section class="login-card">
+      <a href="index.html" aria-label="Volver al catálogo"><img src="assets/brand/logo-principal.png" alt="Vestalia"></a>
+      <p>Administración del catálogo</p>
+      <h1>Acceso al editor</h1>
+      <form id="login-form">
+        <label>Contraseña<input id="password" type="password" autocomplete="current-password" required autofocus></label>
+        <button type="submit">Entrar</button>
+      </form>
+      <div id="login-message" role="status" aria-live="polite"></div>
+      <a class="back" href="index.html">← Volver al catálogo</a>
+    </section>
+  </main>
+  <script src="login.js"></script>
+</body>
+</html>

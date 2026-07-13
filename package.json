@@ -1,0 +1,23 @@
+{
+  "name": "vestalia-catalogo",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check app.js && node --check editor.js && node --check login.js && node --check setup.js && node --test",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js",
+    "admin:hash": "node scripts/hash-password.js",
+    "session:secret": "node scripts/generate-secret.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0",
+    "@sparticuz/chromium-min": "149.0.0",
+    "@vercel/blob": "2.6.1",
+    "puppeteer-core": "25.3.0"
+  }
+}
