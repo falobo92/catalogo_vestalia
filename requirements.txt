@@ -1,0 +1,2 @@
+playwright>=1.45,<1.56
+pillow>=10.0

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#11334A">
+  <title>Administrar catálogo — Vestalia</title>
+  <link rel="icon" href="assets/brand/isotipo.png">
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header class="editor-header">
+    <a href="index.html" class="editor-brand" aria-label="Abrir catálogo Vestalia">
+      <img src="assets/brand/isotipo.png" alt="" width="110" height="150"><span>Vestalia</span>
+    </a>
+    <div class="editor-status" id="server-status"><i></i><span>Comprobando guardado…</span></div>
+    <div class="editor-actions">
+      <button id="import-trigger" class="ghost" type="button">Importar</button>
+      <input id="import-json" type="file" accept="application/json" hidden>
+      <button id="export-json" class="ghost" type="button">Descargar respaldo</button>
+      <a class="preview-link" href="index.html" target="_blank">Ver catálogo <span aria-hidden="true">↗</span></a>
+      <button id="logout" class="ghost cloud-only" type="button" hidden>Salir</button>
+      <button id="save-catalog" class="primary" type="button">Guardar catálogo</button>
+    </div>
+  </header>
+
+  <main class="editor-layout">
+    <aside class="product-sidebar">
+      <div class="sidebar-heading">
+        <div><span>Base de productos</span><strong id="sidebar-count">0 productos</strong></div>
+        <button id="new-product" type="button" aria-label="Crear producto">+</button>
+      </div>
+      <label class="editor-search">
+        <span class="sr-only">Buscar producto</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+        <input id="editor-search" type="search" placeholder="Buscar producto">
+      </label>
+      <div id="editor-product-list" class="editor-product-list"></div>
+    </aside>
+
+    <section class="editor-main">
+      <div class="editor-intro">
+        <div>
+          <p>Estudio de catálogo · <span id="product-position">Producto 1 de 1</span></p>
+          <h1 id="editor-title">Editar producto</h1>
+        </div>
+        <div class="save-indicator" id="save-indicator"><span></span>Sin cambios pendientes</div>
+      </div>
+      <div id="cloud-state" class="cloud-state" hidden></div>
+      <div class="content-tools" aria-label="Administrar contenido del catálogo">
+        <button id="manage-categories" type="button"><span>◫</span><strong>Categorías</strong><small>Nombres, orden y color PDF</small></button>
+        <button id="manage-settings" type="button"><span>⚙</span><strong>Contenido general</strong><small>Precios, servicio y contacto</small></button>
+        <a id="editor-pdf-a4" href="Vestalia_Catalogo_Cafeterias.pdf" target="_blank"><span>A4</span><strong>PDF para imprimir</strong><small>Edición vertical tamaño A4</small></a>
+        <a id="editor-pdf-mobile" href="Vestalia_Catalogo_Movil.pdf" target="_blank"><span>9:16</span><strong>PDF para celular</strong><small>Edición optimizada para teléfono</small></a>
+        <button id="regenerate-pdf" class="cloud-only" type="button" hidden><span>↻</span><strong>Regenerar PDF</strong><small>Actualiza ambas ediciones</small></button>
+      </div>
+
+      <form id="product-form" class="product-form">
+        <input id="field-index" type="hidden">
+
+        <section class="form-section">
+          <div class="form-section-heading"><span>01</span><div><h2>Identidad del producto</h2><p>Nombre, familia y forma en que aparece en el catálogo.</p></div></div>
+          <div class="form-grid two">
+            <label>Nombre visible<input id="field-name" required autocomplete="off"></label>
+            <label>ID único <small>Se genera automáticamente</small><input id="field-id" required pattern="[a-z0-9-]+" autocomplete="off"></label>
+          </div>
+          <div class="form-grid two">
+            <label>Categoría<select id="field-category"></select></label>
+            <label>Tipo o bajada<input id="field-eyebrow" placeholder="Ej. Galleta tradicional"></label>
+          </div>
+          <label>Etiquetas <small>Separadas por coma; usa máximo tres o cuatro</small><input id="field-tags" placeholder="Cítrica, Centro de vainilla"></label>
+        </section>
+
+        <section class="form-section image-section">
+          <div class="form-section-heading"><span>02</span><div><h2>Fotografía</h2><p>Sube una imagen o usa una ruta ya disponible.</p></div></div>
+          <div class="image-editor">
+            <div class="image-preview" data-mode="contain"><img id="editor-preview" alt="Vista previa del producto"></div>
+            <div class="image-fields">
+              <label>Ruta de imagen<input id="field-image" placeholder="assets/images/producto.webp"></label>
+              <label class="upload-button">Subir una imagen
+                <input id="upload-image" type="file" accept="image/png,image/jpeg,image/webp,image/avif">
+              </label>
+              <p id="upload-help">JPG, PNG, WebP o AVIF. Máximo 15 MB.</p>
+              <div class="form-grid two compact">
+                <label>Tratamiento<select id="field-image-mode"><option value="contain">Producto recortado</option><option value="cover">Fotografía completa</option></select></label>
+                <label>Foco de imagen<input id="field-image-position" placeholder="center center"></label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="form-section-heading"><span>03</span><div><h2>Venta y presentación</h2><p>Datos que ayudan a la cafetería a tomar una decisión.</p></div></div>
+          <div class="form-grid three">
+            <label>Peso<input id="field-weight" placeholder="93 g aprox."></label>
+            <label>Formato<input id="field-format" placeholder="Unidad" required></label>
+            <label>Precio neto<input id="field-price" placeholder="$1.366 + IVA" required></label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="form-section-heading"><span>04</span><div><h2>Contenido</h2><p>Texto claro, apetitoso y preciso.</p></div></div>
+          <label>Etiqueta del detalle<select id="field-details-label"><option value="Ingredientes y composición">Ingredientes y composición</option><option value="Descripción comercial">Descripción comercial</option></select></label>
+          <label>Descripción o ingredientes<textarea id="field-ingredients" rows="6" placeholder="Describe el producto o enumera sus ingredientes."></textarea></label>
+          <label>Relleno o nota adicional<textarea id="field-insert" rows="4" placeholder="Ej. Relleno de vainilla: queso crema, azúcar y vainilla."></textarea></label>
+        </section>
+
+        <div class="form-footer">
+          <div>
+            <button id="delete-product" class="danger" type="button">Eliminar</button>
+            <button id="duplicate-product" type="button">Duplicar</button>
+          </div>
+          <div>
+            <button id="move-up" type="button" title="Mover antes">↑ Mover</button>
+            <button id="move-down" type="button" title="Mover después">↓ Mover</button>
+            <button class="primary" type="submit">Aplicar cambios</button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="editor-tip">
+        <span>Consejo Vestalia</span>
+        <p>Mantén las descripciones simples, honestas y apetitosas. Antes de publicar, confirma gramajes, alérgenos y disponibilidad.</p>
+      </aside>
+    </section>
+  </main>
+
+  <dialog class="editor-dialog" id="categories-dialog" aria-labelledby="categories-title">
+    <div class="dialog-header">
+      <div><p>Estructura del catálogo</p><h2 id="categories-title">Categorías</h2></div>
+      <button class="dialog-x" type="button" data-close-dialog="categories-dialog" aria-label="Cerrar">×</button>
+    </div>
+    <p class="dialog-lede">El orden define el índice y las páginas del PDF. El color se usa en el borde superior de cada categoría.</p>
+    <div id="category-editor-list" class="category-editor-list"></div>
+    <div class="dialog-footer">
+      <button id="add-category" type="button">+ Nueva categoría</button>
+      <div><button type="button" data-close-dialog="categories-dialog">Cancelar</button><button id="apply-categories" class="primary" type="button">Aplicar categorías</button></div>
+    </div>
+  </dialog>
+
+  <dialog class="editor-dialog settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+    <div class="dialog-header">
+      <div><p>Contenido transversal</p><h2 id="settings-title">Contenido general</h2></div>
+      <button class="dialog-x" type="button" data-close-dialog="settings-dialog" aria-label="Cerrar">×</button>
+    </div>
+
+    <section class="dialog-section">
+      <div class="dialog-section-title"><span>01</span><div><h3>Portada y textos</h3><p>Información que se reutiliza en la web y el PDF.</p></div></div>
+      <div class="form-grid two">
+        <label>Título del catálogo<input id="setting-title"></label>
+        <label>Subtítulo<input id="setting-subtitle"></label>
+      </div>
+      <label>Bajada principal de la web<input id="setting-hero-lede"></label>
+      <div class="form-grid two">
+        <label>Mantra<input id="setting-mantra"></label>
+        <label>Edición<input id="setting-edition"></label>
+      </div>
+      <label>Introducción<textarea id="setting-intro" rows="4"></textarea></label>
+      <div class="form-grid two">
+        <label>Frase sobre el título del índice<input id="setting-intro-kicker"></label>
+        <label>Título del índice<input id="setting-intro-title"></label>
+      </div>
+      <div class="form-grid two">
+        <label>Frase al pie del índice<input id="setting-intro-bottom"></label>
+        <label>Título de precios y servicio<input id="setting-business-title"></label>
+      </div>
+      <div class="form-grid two">
+        <label>Nota general de galletas<textarea id="setting-cookie-note" rows="3"></textarea></label>
+        <label>Nota Ferrero Rocher<textarea id="setting-ferrero-note" rows="3"></textarea></label>
+      </div>
+      <label>Nota tributaria<input id="setting-tax-note"></label>
+      <div class="form-grid two">
+        <label>Plazo destacado<input id="setting-delivery-time-value"></label>
+        <label>Etiqueta del plazo<input id="setting-delivery-time-label"></label>
+        <label>Costo de despacho destacado<input id="setting-delivery-cost-value"></label>
+        <label>Etiqueta del despacho<input id="setting-delivery-cost-label"></label>
+        <label>Facturación destacada<input id="setting-invoice-value"></label>
+        <label>Etiqueta de facturación<input id="setting-invoice-label"></label>
+        <label>Impuesto destacado<input id="setting-tax-value"></label>
+        <label>Etiqueta de impuesto<input id="setting-tax-label"></label>
+      </div>
+    </section>
+
+    <section class="dialog-section">
+      <div class="dialog-section-title"><span>02</span><div><h3>Tabla de precios</h3><p>La tabla es independiente del valor de cada ficha. La categoría mantiene la fila vinculada si luego cambias su ID.</p></div></div>
+      <div id="price-editor-list" class="repeat-editor-list"></div>
+      <button id="add-price-row" class="add-row-button" type="button">+ Agregar fila de precio</button>
+    </section>
+
+    <section class="dialog-section">
+      <div class="dialog-section-title"><span>03</span><div><h3>Preguntas y servicio</h3><p>Medios de pago, factura, despacho y otras condiciones.</p></div></div>
+      <div id="faq-editor-list" class="repeat-editor-list"></div>
+      <button id="add-faq-row" class="add-row-button" type="button">+ Agregar pregunta</button>
+    </section>
+
+    <section class="dialog-section">
+      <div class="dialog-section-title"><span>04</span><div><h3>Conservación</h3><p>Una instrucción por línea en los campos múltiples.</p></div></div>
+      <label>Nota principal<textarea id="setting-storage-note" rows="3"></textarea></label>
+      <div class="form-grid two">
+        <label>Cómo calentar<textarea id="setting-heating" rows="5"></textarea></label>
+        <label>Cómo conservar<textarea id="setting-conservation" rows="5"></textarea></label>
+      </div>
+      <div class="form-grid two">
+        <label>Título de calentado<input id="setting-heating-title"></label>
+        <label>Título de conservación<input id="setting-conservation-title"></label>
+      </div>
+    </section>
+
+    <section class="dialog-section">
+      <div class="dialog-section-title"><span>05</span><div><h3>Contacto</h3><p>Estos datos aparecen en la web, WhatsApp y la última página del PDF.</p></div></div>
+      <div class="form-grid two">
+        <label>Instagram<input id="setting-instagram"></label>
+        <label>Enlace de Instagram<input id="setting-instagram-url" type="url"></label>
+      </div>
+      <div class="form-grid two">
+        <label>Teléfono<input id="setting-phone"></label>
+        <label>Número de WhatsApp<input id="setting-whatsapp"></label>
+      </div>
+      <div class="form-grid two">
+        <label>Correo<input id="setting-email" type="email"></label>
+        <label>Enlace de WhatsApp <small>Se genera automáticamente si queda vacío</small><input id="setting-whatsapp-url" type="url"></label>
+      </div>
+      <label>Mensaje general de WhatsApp<textarea id="setting-whatsapp-message" rows="2"></textarea></label>
+      <label>Mensaje por producto <small>Usa {producto} y {formato}</small><textarea id="setting-whatsapp-product-message" rows="2"></textarea></label>
+      <div class="form-grid two">
+        <label>Encabezado de contacto<input id="setting-contact-eyebrow"></label>
+        <label>Título de la última página<input id="setting-contact-title"></label>
+      </div>
+      <label>Texto de contacto<textarea id="setting-contact-text" rows="3"></textarea></label>
+    </section>
+
+    <div class="dialog-footer sticky-footer">
+      <span>Los cambios se publicarán al guardar.</span>
+      <div><button type="button" data-close-dialog="settings-dialog">Cancelar</button><button id="apply-settings" class="primary" type="button">Guardar contenido</button></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data/catalog-data.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

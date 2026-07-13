@@ -1,0 +1,32 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "fluid": true,
+  "functions": {
+    "api/pdf.js": {
+      "maxDuration": 300,
+      "regions": ["gru1"],
+      "includeFiles": "{assets/**,*.css}"
+    }
+  },
+  "rewrites": [
+    { "source": "/c", "destination": "/api/pdf?tipo=a4" },
+    { "source": "/m", "destination": "/api/pdf?tipo=movil" },
+    { "source": "/e", "destination": "/editor.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ]
+}

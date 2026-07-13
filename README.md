@@ -8,7 +8,9 @@ El sitio, el editor y el PDF parten de una única fuente maestra: `data/catalogo
 
 La versión cloud se configura íntegramente desde el navegador: no requiere instalar GitHub CLI, Vercel CLI, Git ni Node en el computador del propietario. Consulta [DEPLOY_VERCEL.md](DEPLOY_VERCEL.md) para ver el procedimiento completo.
 
-En Vercel, el catálogo público consulta Neon y conserva `data/catalog-data.js` como respaldo. El editor usa una sesión segura de 12 horas, las imágenes nuevas se guardan en Vercel Blob y los PDF se regeneran con Chromium mediante un botón separado. La base de datos y la revisión inicial se crean automáticamente en la primera consulta.
+En Vercel, el catálogo público consulta Neon y conserva `data/catalog-data.js` como respaldo. El editor usa una sesión segura de 12 horas, las imágenes nuevas se guardan en Vercel Blob y los PDF se regeneran con Chromium mediante un botón separado. La base de datos se crea automáticamente en la revisión 0 durante la primera consulta.
+
+Enlaces públicos cortos: `/c` abre el catálogo A4, `/m` abre el catálogo móvil y `/e` abre el editor. Las rutas API anteriores siguen disponibles por compatibilidad.
 
 ## Empezar
 
@@ -53,7 +55,7 @@ También puedes crear, duplicar, eliminar, buscar y reordenar productos. `Ctrl+S
 Sobre el formulario de producto hay dos administradores adicionales:
 
 - **Categorías**: crea, elimina y reordena familias; edita su nombre, nombre corto, descripción y el color hexadecimal del borde superior del PDF.
-- **Contenido general**: edita portada, índice, destacados comerciales, tabla de precios, preguntas de servicio, conservación, datos de contacto y WhatsApp.
+- **Contenido general**: edita portada, índice, destacados comerciales, tabla de precios, preguntas de servicio, conservación, datos de contacto y los mensajes general/por producto de WhatsApp.
 
 El índice de ambos PDF se numera automáticamente y cada categoría queda hipervinculada a su primera página. Cada página de índice admite hasta 10 categorías; la página siguiente se crea desde la undécima. Las categorías nuevas aparecen de inmediato aunque todavía no tengan productos; en ese caso reciben una página de presentación con su nombre, descripción y color. Si aumentan las categorías, los productos, los precios o las preguntas, el generador agrega las páginas necesarias.
 
@@ -158,4 +160,3 @@ La salida es `Vestalia_Catalogo_Movil.pdf`, en proporción vertical 9:16. Tiene 
 El catálogo original no especifica el gramaje de Pistacho premium ni aclara si los 120 g de Ferrero Rocher incluyen el bombón. Los nueve productos incorporados en la propuesta ampliada usan descripciones comerciales y precio “A cotizar”; conviene completar ingredientes, formato, gramaje y alérgenos antes de considerarlos fichas técnicas.
 
 Por tratarse de alimentos, confirma especialmente gluten/trigo, leche, huevo, soja, maní, nueces, almendras, pistacho y avellana, además de posibles trazas y contaminación cruzada.
-
