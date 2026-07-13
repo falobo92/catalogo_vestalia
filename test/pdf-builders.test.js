@@ -12,6 +12,10 @@ test("los constructores crean ambos documentos completos", () => {
   assert.match(a4.html, /class="pdf-page cover-page"/);
   assert.match(mobile.html, /class="mobile-page mobile-cover"/);
   assert.match(a4.html, /<base href="https:\/\/vestalia\.example\/">/);
+  assert.match(a4.html, /data:image\/jpeg;base64,/);
+  assert.match(a4.html, /data:font\/ttf;base64,/);
+  assert.doesNotMatch(a4.html, /src="assets\//);
+  assert.doesNotMatch(mobile.html, /src="assets\//);
   for (const product of catalog.products) {
     assert.match(a4.html, new RegExp(product.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.match(mobile.html, new RegExp(product.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));

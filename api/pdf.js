@@ -11,18 +11,22 @@ const DEFAULT_CHROMIUM_PACK = "https://github.com/Sparticuz/chromium/releases/do
 
 async function waitForAssets(page) {
   await page.evaluate(async () => {
-    await document.fonts.ready;
+    const timeout = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+    await Promise.race([document.fonts.ready, timeout(30000)]);
     await Promise.all(Array.from(document.images).map(image => image.complete
       ? Promise.resolve()
-      : new Promise(resolve => {
-          image.addEventListener("load", resolve, { once: true });
-          image.addEventListener("error", resolve, { once: true });
-        })));
+      : Promise.race([
+          new Promise(resolve => {
+            image.addEventListener("load", resolve, { once: true });
+            image.addEventListener("error", resolve, { once: true });
+          }),
+          timeout(30000)
+        ])));
   });
 }
 
 async function render(page, document) {
-  await page.setContent(document.html, { waitUntil: ["domcontentloaded", "networkidle0"], timeout: 120000 });
+  await page.setContent(document.html, { waitUntil: "domcontentloaded", timeout: 120000 });
   await waitForAssets(page);
   return page.pdf({ printBackground: true, preferCSSPageSize: true, timeout: 120000 });
 }
