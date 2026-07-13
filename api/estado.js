@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     ok: true,
     mode: "cloud",
     database: hasDatabase(),
-    storage: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    storage: Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_OIDC_TOKEN),
     pdfEngine: true
   });
 }

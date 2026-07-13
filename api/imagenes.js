@@ -15,8 +15,6 @@ export default async function handler(req, res) {
     if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
     if (!verifySameOrigin(req)) return json(res, 403, { ok: false, error: "Origen de solicitud no permitido." });
     requireAdmin(req);
-    if (!process.env.BLOB_READ_WRITE_TOKEN) return json(res, 503, { ok: false, error: "Vercel Blob todavía no está configurado." });
-
     const contentType = String(req.headers["content-type"] || "").split(";")[0].trim().toLowerCase();
     if (contentType !== "image/webp") {
       return json(res, 415, { ok: false, error: "La imagen debe enviarse optimizada en formato WebP." });

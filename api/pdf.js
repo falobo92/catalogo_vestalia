@@ -50,8 +50,6 @@ export default async function handler(req, res) {
   try {
     requireAdmin(req);
     if (!hasDatabase()) return json(res, 503, { ok: false, error: "La base de datos cloud todavía no está configurada." });
-    if (!process.env.BLOB_READ_WRITE_TOKEN) return json(res, 503, { ok: false, error: "Vercel Blob todavía no está configurado." });
-
     const payload = await readJson(req, 4096);
     const revision = Number(payload?.revision);
     const before = await getCatalogState();

@@ -48,7 +48,9 @@ No necesitas ejecutar migraciones: al abrir `/api/catalogo`, Vestalia crea las t
 3. Selecciona acceso **Public**. Las imágenes y los PDF son contenidos públicos del catálogo.
 4. Usa el nombre `vestalia-assets` y la región más cercana a Chile disponible.
 5. Conéctalo a **Production**, **Preview** y **Development**.
-6. Comprueba que Vercel añadió `BLOB_READ_WRITE_TOKEN`.
+6. Comprueba que el recurso aparece conectado al proyecto. Las conexiones nuevas usan OIDC automáticamente y no necesitan un `BLOB_READ_WRITE_TOKEN` permanente.
+
+Vestalia utiliza `@vercel/blob` con la identidad OIDC que Vercel entrega a cada función. `BLOB_READ_WRITE_TOKEN` solo es opcional para herramientas locales o conexiones antiguas.
 
 ## 4. Crear las claves desde el navegador
 
