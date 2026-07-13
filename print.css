@@ -72,3 +72,7 @@ html,body.print-document{margin:0;padding:0;background:#fff;color:var(--navy);fo
 
 @media screen{body.print-document{background:#d9dde2}.pdf-page{margin:8mm auto;box-shadow:0 4mm 16mm rgba(17,51,74,.16)}}
 @media print{body.print-document{background:#fff}.pdf-page{margin:0;box-shadow:none}}
+body.personas-document{--navy:#14566a;--blue:#8ed9e3;--cream:#eff9f7;--sage:#9bcac2;--sand:#dce9e6;--rose:#cde8eb;--off:#f9fdfc;--gold:#78b7af;--line:rgba(20,86,106,.18)}
+body.personas-document .cover-page{background:linear-gradient(120deg,#eff9f7,#dff5f6)}
+body.personas-document .cover-panel h1 em,body.personas-document .intro-statement h1 em,body.personas-document .closing-panel h1 em{color:#218da1}
+body.personas-document .spread-image{background:#e8f6f5}

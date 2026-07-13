@@ -1,10 +1,12 @@
 (() => {
+  const requested = new URLSearchParams(window.location.search).get("next");
+  const next = requested === "/p/e" ? "/p/e" : "/e";
   const form = document.querySelector("#login-form");
   const message = document.querySelector("#login-message");
   const button = form.querySelector("button");
 
   fetch("/api/auth/session", { cache: "no-store" }).then(response => response.json()).then(result => {
-    if (result.authenticated) window.location.replace("/editor.html");
+    if (result.authenticated) window.location.replace(next);
   }).catch(() => {});
 
   form.addEventListener("submit", async event => {
@@ -20,7 +22,7 @@
       });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.error || "No fue posible iniciar sesión.");
-      window.location.replace("/editor.html");
+      window.location.replace(next);
     } catch (error) {
       message.textContent = error.message;
     } finally {

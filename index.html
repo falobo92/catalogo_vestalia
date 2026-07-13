@@ -33,7 +33,7 @@
         <div class="hero-copy">
           <div class="hero-brandline"><span></span><p id="hero-subtitle">Panadería, pastelería y cocina fresca</p></div>
           <img class="hero-logo" src="assets/brand/logo-principal.png" alt="Vestalia" width="230" height="230">
-          <p class="eyebrow">Selección para cafeterías</p>
+          <p class="eyebrow" id="hero-audience">Selección para cafeterías</p>
           <h1 id="hero-title">Catálogo para<br><em>cafeterías</em></h1>
           <p class="hero-lede" id="hero-lede">Una colección artesanal, cuidada y lista para darle algo especial a cada vitrina.</p>
           <div class="hero-actions">
@@ -95,11 +95,11 @@
         <div class="price-heading">
           <div class="section-label light"><span>02</span><p>Condiciones comerciales</p></div>
           <h2 id="business-title">Precios para<br><em>cafeterías</em></h2>
-          <p>Valores netos. El IVA se agrega al momento de facturar.</p>
+          <p id="business-note">Valores netos. El IVA se agrega al momento de facturar.</p>
           <a class="button button-light" href="#pedidos">Consultar disponibilidad</a>
         </div>
         <div>
-          <div class="price-labels" aria-hidden="true"><span>Producto</span><span>Formato</span><span>Valor neto</span></div>
+          <div class="price-labels" aria-hidden="true"><span>Producto</span><span>Formato</span><span id="price-value-label">Valor neto</span></div>
           <div id="price-list" class="price-list"></div>
           <p class="price-note" id="tax-note"></p>
         </div>
@@ -152,6 +152,7 @@
   </dialog>
 
   <script src="data/catalog-data.js"></script>
+  <script src="data/catalog-personas-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

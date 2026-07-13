@@ -1,8 +1,8 @@
 # Vestalia — catálogo editorial escalable
 
-Catálogo móvil y sistema de administración para cafeterías. Puede ejecutarse localmente en Windows o publicarse con GitHub, Vercel, Neon y Vercel Blob.
+Catálogo móvil y sistema de administración con dos canales independientes: **Cafeterías** y **Personas**. Puede ejecutarse localmente en Windows o publicarse con GitHub, Vercel, Neon y Vercel Blob.
 
-El sitio, el editor y el PDF parten de una única fuente maestra: `data/catalogo.json`.
+Cada canal mantiene sus propios productos, precios, condiciones, revisión y PDF. Comparten la identidad Vestalia, las imágenes y el acceso administrativo.
 
 ## Publicar sin instalar herramientas
 
@@ -10,7 +10,12 @@ La versión cloud se configura íntegramente desde el navegador: no requiere ins
 
 En Vercel, el catálogo público consulta Neon y conserva `data/catalog-data.js` como respaldo. El editor usa una sesión segura de 12 horas, las imágenes nuevas se guardan en Vercel Blob y los PDF se regeneran con Chromium mediante un botón separado. La base de datos se crea automáticamente en la revisión 0 durante la primera consulta.
 
-Enlaces públicos cortos: `/c` abre el catálogo A4, `/m` abre el catálogo móvil y `/e` abre el editor. Las rutas API anteriores siguen disponibles por compatibilidad.
+Enlaces públicos cortos:
+
+- Cafeterías: `/`, `/e`, `/c` (PDF A4) y `/m` (PDF móvil).
+- Personas: `/p`, `/p/e`, `/p/c` (PDF A4) y `/p/m` (PDF móvil).
+
+Los dos catálogos públicos son independientes y no se enlazan entre sí, porque están pensados para compartirse por canales distintos. El selector Cafeterías/Personas aparece únicamente dentro del editor. Un catálogo puede mantenerse como borrador o publicarse desde **Contenido general → Publicación**.
 
 ## Empezar
 
@@ -44,6 +49,8 @@ Si una descarga se interrumpe o el lanzador indica que el entorno está incomple
 
 ## Editar productos
 
+Abre `/e` para administrar Cafeterías o `/p/e` para administrar Personas. El selector del encabezado permite pasar de uno al otro; guardar uno nunca modifica el otro.
+
 1. Selecciona un producto en la barra lateral.
 2. Cambia nombre, categoría, fotografía, formato, precio o descripción.
 3. Para una foto nueva, pulsa **Subir una imagen**. El archivo se guardará en `assets/images/`.
@@ -63,21 +70,22 @@ El botón **Descargar respaldo** genera un JSON fechado. **Importar** permite re
 
 ## Fuente única y sincronización
 
-- `data/catalogo.json`: base maestra y editable.
-- `data/catalog-data.js`: fallback generado automáticamente para abrir el sitio sin servidor.
+- `data/catalogo.json`: base maestra y editable de Cafeterías.
+- `data/catalogo-personas.json`: borrador/base maestra de Personas.
+- `data/catalog-data.js` y `data/catalog-personas-data.js`: respaldos generados automáticamente para abrir ambos sitios sin conexión a la API.
 - `sync_catalogo.py`: valida IDs, categorías y campos obligatorios, y regenera el fallback.
 - `servidor.py`: guarda cambios e imágenes directamente desde el editor.
 - `build_print_static.py`: construye la versión de impresión desde el JSON maestro.
 
 El precio de una ficha y la tabla comercial son campos explícitos e independientes. Esto permite mostrar un valor individual en el producto y, si corresponde, otro formato agrupado en la tabla sin que uno sobrescriba silenciosamente al otro.
 
-No edites `data/catalog-data.js` manualmente. Si cambias el JSON con un editor de texto, sincroniza con:
+No edites los archivos `catalog-*-data.js` manualmente. Si cambias el JSON de Cafeterías con un editor de texto, sincroniza con:
 
 ```bash
 python3 sync_catalogo.py
 ```
 
-Al guardar desde `editor.html`, el servidor valida el conjunto completo, actualiza `data/catalog-data.js` y vuelve a generar las dos ediciones: `Vestalia_Catalogo_Cafeterias.pdf` y `Vestalia_Catalogo_Movil.pdf`. Si algo falla, conserva los archivos anteriores para evitar versiones mezcladas. El mismo proceso ocurre al iniciar `servidor.py`.
+En Vercel, el botón **Regenerar PDF** crea las ediciones A4 y móvil del canal seleccionado. Solo actualiza los enlaces si ambas terminan correctamente. Al guardar Cafeterías localmente también se regeneran sus dos PDF; el borrador Personas se edita localmente, pero sus PDF se generan en la versión cloud.
 
 ## Abrir solo para consulta
 

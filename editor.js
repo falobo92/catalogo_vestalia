@@ -7,11 +7,27 @@
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-  let catalog = structuredClone(window.VESTALIA_DATA || {});
+  const params = new URLSearchParams(window.location.search);
+  const catalogChannel = window.location.pathname.startsWith("/p") || params.get("catalogo") === "personas" ? "personas" : "cafeterias";
+  const catalogApi = `/api/catalogo?catalogo=${catalogChannel}`;
+  const previewPath = catalogChannel === "personas" ? "/p" : "/";
+  const pdfPaths = catalogChannel === "personas" ? { a4: "/p/c", mobile: "/p/m" } : { a4: "/c", mobile: "/m" };
+  document.body.classList.toggle("theme-personas", catalogChannel === "personas");
+  document.querySelector(".editor-brand").href = previewPath;
+  document.querySelector(".preview-link").href = previewPath;
+  document.querySelector("#editor-pdf-a4").href = pdfPaths.a4;
+  document.querySelector("#editor-pdf-mobile").href = pdfPaths.mobile;
+  document.querySelector("#field-price-label").textContent = catalogChannel === "personas" ? "Precio final (IVA incluido)" : "Precio neto";
+  document.querySelector("#field-price").placeholder = catalogChannel === "personas" ? "$4.990" : "$1.366 + IVA";
+  document.querySelector("#sale-section-help").textContent = catalogChannel === "personas"
+    ? "Formato, cantidad y precio final que verá cada persona."
+    : "Datos que ayudan a la cafetería a tomar una decisión.";
+  document.querySelectorAll("[data-editor-channel]").forEach(link => link.classList.toggle("active", link.dataset.editorChannel === catalogChannel));
+  let catalog = structuredClone((catalogChannel === "personas" ? window.VESTALIA_DATA_PERSONAS : window.VESTALIA_DATA) || {});
   let currentIndex = 0;
   let serverMode = false;
   let cloudMode = false;
-  let catalogRevision = 1;
+  let catalogRevision = 0;
   let pdfRevision = 0;
   let updatedAt = null;
   let pdfUpdatedAt = null;
@@ -77,10 +93,10 @@
     const panel = $("#cloud-state");
     panel.hidden = false;
     panel.classList.toggle("pending", pending);
-    const pdfLabel = pending && pdfRevision === 0 ? "pendiente" : pdfRevision;
+    const pdfLabel = pending && pdfRevision < 0 ? "pendiente" : pdfRevision;
     panel.innerHTML = `<strong>Catálogo · revisión ${catalogRevision}</strong><span>Guardado ${escapeHtml(formatDate(updatedAt))}</span><strong>PDF · revisión ${pdfLabel}</strong><span>${pending ? "Los PDF requieren regeneración" : `Actualizados ${escapeHtml(formatDate(pdfUpdatedAt))}`}</span>`;
-    $("#editor-pdf-a4").href = "/c";
-    $("#editor-pdf-mobile").href = "/m";
+    $("#editor-pdf-a4").href = pdfPaths.a4;
+    $("#editor-pdf-mobile").href = pdfPaths.mobile;
   }
 
   function download(filename, content, type = "application/json") {
@@ -200,14 +216,16 @@
   async function saveCatalog() {
     if (!applyForm()) return;
     if (!serverMode) {
-      download("catalogo.json", JSON.stringify(catalog, null, 2) + "\n");
-      download("catalog-data.js", `window.VESTALIA_DATA = ${JSON.stringify(catalog, null, 2)};\n`, "text/javascript");
+      const suffix = catalogChannel === "personas" ? "-personas" : "";
+      const variable = catalogChannel === "personas" ? "VESTALIA_DATA_PERSONAS" : "VESTALIA_DATA";
+      download(`catalogo${suffix}.json`, JSON.stringify(catalog, null, 2) + "\n");
+      download(`catalog${suffix}-data.js`, `window.${variable} = ${JSON.stringify(catalog, null, 2)};\n`, "text/javascript");
       showToast("Modo respaldo: se descargaron los datos. Usa iniciar_catalogo para guardar directo.");
       return;
     }
     setSaving();
     try {
-      const response = await fetch("/api/catalogo", {
+      const response = await fetch(catalogApi, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cloudMode ? { catalog, revision: catalogRevision } : catalog)
@@ -218,7 +236,9 @@
       setDirty(false);
       showToast(cloudMode
         ? `Catálogo publicado en la revisión ${result.revision}. Ahora puedes regenerar los PDF.`
-        : `Catálogo, PDF A4 y PDF móvil actualizados: ${result.products} productos.`);
+        : result.pdf
+          ? `Catálogo, PDF A4 y PDF móvil actualizados: ${result.products} productos.`
+          : `Catálogo Personas guardado: ${result.products} productos. Sus PDF se generan desde la versión online.`);
     } catch (error) {
       setDirty(true);
       showToast(error.message, true);
@@ -305,12 +325,12 @@
       if (cloudMode) {
         const session = await fetch("/api/auth/session", { cache: "no-store" }).then(item => item.json());
         if (!session.authenticated) {
-          window.location.replace("/login.html");
+          window.location.replace(`/login.html?next=${encodeURIComponent(catalogChannel === "personas" ? "/p/e" : "/e")}`);
           return false;
         }
         document.querySelectorAll(".cloud-only").forEach(element => { element.hidden = false; });
       }
-      const response = await fetch("/api/catalogo", { cache: "no-store" });
+      const response = await fetch(catalogApi, { cache: "no-store" });
       if (!response.ok) throw new Error("offline");
       const payload = await response.json();
       catalog = payload.catalog || payload;
@@ -338,7 +358,7 @@
     strong.textContent = "Generando…";
     showToast("Generando ambos PDF. Puede tardar uno o dos minutos.");
     try {
-      const response = await fetch("/api/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ revision: catalogRevision }) });
+      const response = await fetch("/api/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ revision: catalogRevision, catalogo: catalogChannel }) });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.error || "No fue posible regenerar los PDF.");
       updateCloudState(result);
@@ -475,6 +495,8 @@
 
   function renderSettingsEditor() {
     const meta = catalog.meta || {};
+    $("#setting-publication").hidden = catalogChannel !== "personas";
+    $("#setting-published").checked = !meta.draft;
     $("#setting-title").value = meta.title || "";
     $("#setting-subtitle").value = meta.subtitle || "";
     $("#setting-hero-lede").value = meta.heroLede || "";
@@ -556,7 +578,8 @@
       deliveryTimeValue: $("#setting-delivery-time-value").value.trim(), deliveryTimeLabel: $("#setting-delivery-time-label").value.trim(),
       deliveryCostValue: $("#setting-delivery-cost-value").value.trim(), deliveryCostLabel: $("#setting-delivery-cost-label").value.trim(),
       invoiceValue: $("#setting-invoice-value").value.trim(), invoiceLabel: $("#setting-invoice-label").value.trim(),
-      taxValue: $("#setting-tax-value").value.trim(), taxLabel: $("#setting-tax-label").value.trim()
+      taxValue: $("#setting-tax-value").value.trim(), taxLabel: $("#setting-tax-label").value.trim(),
+      draft: catalogChannel === "personas" ? !$("#setting-published").checked : false
     };
     catalog.prices = prices;
     catalog.faq = faq;

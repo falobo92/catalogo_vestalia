@@ -2,6 +2,7 @@ import chromium from "@sparticuz/chromium-min";
 import { del, put } from "@vercel/blob";
 import puppeteer from "puppeteer-core";
 import { requireAdmin } from "../lib/auth.js";
+import { normalizeCatalogChannel } from "../lib/catalog.js";
 import { getCatalogState, hasDatabase, updatePdfState } from "../lib/db.js";
 import { buildA4Html, buildMobileHtml } from "../lib/pdf-builders.js";
 import { json, methodNotAllowed, readJson, requestOrigin, verifySameOrigin } from "../lib/http.js";
@@ -32,12 +33,16 @@ async function render(page, document) {
 }
 
 export default async function handler(req, res) {
+  const queryChannel = normalizeCatalogChannel(req.query?.catalogo);
   if (req.method === "GET") {
     try {
       const type = String(req.query?.tipo || "").toLowerCase();
       if (!new Set(["a4", "movil"]).has(type)) return json(res, 400, { ok: false, error: "Usa tipo=a4 o tipo=movil." });
-      const state = await getCatalogState();
+      const state = await getCatalogState(queryChannel);
       const target = type === "a4" ? state.pdfA4Url : state.pdfMobileUrl;
+      if (!target || state.pdfRevision !== state.revision) {
+        return json(res, 409, { ok: false, error: "Este PDF todavía no ha sido generado para la revisión vigente." });
+      }
       res.statusCode = 302;
       res.setHeader("Location", target);
       res.setHeader("Cache-Control", "no-store");
@@ -55,8 +60,9 @@ export default async function handler(req, res) {
     requireAdmin(req);
     if (!hasDatabase()) return json(res, 503, { ok: false, error: "La base de datos cloud todavía no está configurada." });
     const payload = await readJson(req, 4096);
+    const channel = normalizeCatalogChannel(payload?.catalogo || queryChannel);
     const revision = Number(payload?.revision);
-    const before = await getCatalogState();
+    const before = await getCatalogState(channel);
     if (!Number.isInteger(revision) || revision !== before.revision) {
       return json(res, 409, { ok: false, error: "El catálogo cambió. Recarga antes de regenerar los PDF." });
     }
@@ -74,12 +80,12 @@ export default async function handler(req, res) {
     const mobileBuffer = await render(page, mobile);
 
     const stamp = Date.now();
-    const a4Blob = await put(`pdf/revision-${revision}/${stamp}-catalogo-a4.pdf`, a4Buffer, { access: "public", contentType: "application/pdf", addRandomSuffix: false });
+    const a4Blob = await put(`pdf/${channel}/revision-${revision}/${stamp}-catalogo-a4.pdf`, a4Buffer, { access: "public", contentType: "application/pdf", addRandomSuffix: false });
     uploaded.push(a4Blob.url);
-    const mobileBlob = await put(`pdf/revision-${revision}/${stamp}-catalogo-movil.pdf`, mobileBuffer, { access: "public", contentType: "application/pdf", addRandomSuffix: false });
+    const mobileBlob = await put(`pdf/${channel}/revision-${revision}/${stamp}-catalogo-movil.pdf`, mobileBuffer, { access: "public", contentType: "application/pdf", addRandomSuffix: false });
     uploaded.push(mobileBlob.url);
 
-    const state = await updatePdfState(revision, a4Blob.url, mobileBlob.url);
+    const state = await updatePdfState(revision, a4Blob.url, mobileBlob.url, channel);
     if (!state) {
       await del(uploaded);
       return json(res, 409, { ok: false, error: "El catálogo cambió durante la generación. Vuelve a intentarlo." });

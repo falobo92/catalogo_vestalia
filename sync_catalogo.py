@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 JSON_PATH = DATA_DIR / "catalogo.json"
 JS_PATH = DATA_DIR / "catalog-data.js"
+PERSONAS_JSON_PATH = DATA_DIR / "catalogo-personas.json"
+PERSONAS_JS_PATH = DATA_DIR / "catalog-personas-data.js"
 
 
 class CatalogError(ValueError):
@@ -88,32 +90,41 @@ def validate_catalog(catalog: Any) -> dict[str, Any]:
     return catalog
 
 
-def load_catalog() -> dict[str, Any]:
+def catalog_paths(channel: str = "cafeterias") -> tuple[Path, Path, str]:
+    if channel == "personas":
+        return PERSONAS_JSON_PATH, PERSONAS_JS_PATH, "VESTALIA_DATA_PERSONAS"
+    return JSON_PATH, JS_PATH, "VESTALIA_DATA"
+
+
+def load_catalog(channel: str = "cafeterias") -> dict[str, Any]:
+    json_path, _, _ = catalog_paths(channel)
     try:
-        catalog = json.loads(JSON_PATH.read_text(encoding="utf-8"))
+        catalog = json.loads(json_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        raise CatalogError(f"No se pudo leer {JSON_PATH.name}: {error}") from error
+        raise CatalogError(f"No se pudo leer {json_path.name}: {error}") from error
     return validate_catalog(catalog)
 
 
-def write_catalog(catalog: dict[str, Any]) -> None:
+def write_catalog(catalog: dict[str, Any], channel: str = "cafeterias") -> None:
     validate_catalog(catalog)
+    json_path, _, _ = catalog_paths(channel)
     serialized = json.dumps(catalog, ensure_ascii=False, indent=2) + "\n"
-    temporary = JSON_PATH.with_suffix(".json.tmp")
+    temporary = json_path.with_suffix(".json.tmp")
     temporary.write_text(serialized, encoding="utf-8")
-    temporary.replace(JSON_PATH)
-    write_js_fallback(catalog)
+    temporary.replace(json_path)
+    write_js_fallback(catalog, channel)
 
 
-def write_js_fallback(catalog: dict[str, Any]) -> None:
+def write_js_fallback(catalog: dict[str, Any], channel: str = "cafeterias") -> None:
+    json_path, js_path, variable = catalog_paths(channel)
     serialized = json.dumps(catalog, ensure_ascii=False, indent=2)
     content = (
-        "// Archivo generado desde data/catalogo.json. No editar manualmente.\n"
-        f"window.VESTALIA_DATA = {serialized};\n"
+        f"// Archivo generado desde data/{json_path.name}. No editar manualmente.\n"
+        f"window.{variable} = {serialized};\n"
     )
-    temporary = JS_PATH.with_suffix(".js.tmp")
+    temporary = js_path.with_suffix(".js.tmp")
     temporary.write_text(content, encoding="utf-8")
-    temporary.replace(JS_PATH)
+    temporary.replace(js_path)
 
 
 if __name__ == "__main__":

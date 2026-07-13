@@ -1,9 +1,15 @@
 (async () => {
-  let data = window.VESTALIA_DATA;
+  const params = new URLSearchParams(window.location.search);
+  const catalogChannel = window.location.pathname.startsWith("/p") || params.get("catalogo") === "personas" ? "personas" : "cafeterias";
+  const catalogApi = `/api/catalogo?catalogo=${catalogChannel}`;
+  const pdfPaths = catalogChannel === "personas" ? { a4: "/p/c", mobile: "/p/m" } : { a4: "/c", mobile: "/m" };
+  document.body.dataset.catalog = catalogChannel;
+  document.body.classList.toggle("theme-personas", catalogChannel === "personas");
+  let data = catalogChannel === "personas" ? window.VESTALIA_DATA_PERSONAS : window.VESTALIA_DATA;
   let cloudState = null;
   if (window.location.protocol !== "file:") {
     try {
-      const response = await fetch("/api/catalogo", { cache: "no-store" });
+      const response = await fetch(catalogApi, { cache: "no-store" });
       if (response.ok) {
         const payload = await response.json();
         if (payload?.catalog) {
@@ -20,6 +26,16 @@
   if (!data) {
     document.body.innerHTML = '<p style="padding:2rem;font-family:sans-serif">No fue posible cargar los datos del catálogo.</p>';
     return;
+  }
+  document.title = `${data.meta.brand || "Vestalia"} — ${data.meta.title}`;
+  if (catalogChannel === "personas") {
+    if (data.meta.draft) {
+      const robots = document.createElement("meta");
+      robots.name = "robots";
+      robots.content = "noindex,nofollow";
+      document.head.append(robots);
+      document.body.insertAdjacentHTML("afterbegin", '<div class="draft-banner">Borrador · precios, formatos y productos por confirmar</div>');
+    }
   }
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -46,8 +62,8 @@
   if (cloudState) {
     const a4 = $("#pdf-a4-link");
     const mobile = $("#pdf-mobile-link");
-    if (a4) a4.href = "/c";
-    if (mobile) mobile.href = "/m";
+    if (a4) a4.href = pdfPaths.a4;
+    if (mobile) mobile.href = pdfPaths.mobile;
   }
 
   function productCard(product, index = 0) {
@@ -92,7 +108,7 @@
           <div class="dialog-facts">
             ${product.weight ? `<div><small>Peso</small><strong>${escapeHtml(product.weight)}</strong></div>` : ""}
             <div><small>Formato</small><strong>${escapeHtml(product.format)}</strong></div>
-            <div><small>Valor neto</small><strong>${escapeHtml(product.price)}</strong></div>
+            <div><small>${escapeHtml(data.meta.priceLabel || "Valor neto")}</small><strong>${escapeHtml(product.price)}</strong></div>
           </div>
           <div class="dialog-description">
             <h3>${detailTitle}</h3>
@@ -111,10 +127,13 @@
     if ($("#brand-intro-text")) $("#brand-intro-text").textContent = data.meta.intro;
     if ($("#brand-mantra")) $("#brand-mantra").textContent = data.meta.mantra;
     $("#hero-subtitle").textContent = data.meta.subtitle;
+    $("#hero-audience").textContent = catalogChannel === "personas" ? "Selección para personas" : "Selección para cafeterías";
     $("#hero-title").innerHTML = editorialTitle(data.meta.title);
     $("#hero-lede").textContent = data.meta.heroLede || data.meta.intro;
     $("#hero-mantra").textContent = data.meta.mantra;
     $("#business-title").innerHTML = editorialTitle(data.meta.businessTitle || "Precios para cafeterías");
+    $("#business-note").textContent = data.meta.taxNote;
+    $("#price-value-label").textContent = data.meta.priceLabel || "Valor neto";
     $("#contact-title").innerHTML = editorialTitle(data.meta.contactTitle || "¿Qué ponemos en tu vitrina?");
     $("#contact-text").textContent = data.meta.contactText || "";
     $("#fact-delivery-time").textContent = data.meta.deliveryTimeValue || "";
@@ -293,7 +312,7 @@
       <article class="print-page print-cover">
         <div class="print-frame"></div>
         ${coverImages.map((src, index) => `<img class="cover-cookie cover-cookie-${index + 1}" src="${escapeHtml(src)}" alt="">`).join("")}
-        <div class="cover-center"><img src="assets/brand/logo-principal.png" alt="Vestalia"><p>${escapeHtml(data.meta.subtitle)}</p><h1>Catálogo<br>para cafeterías</h1><em>${escapeHtml(data.meta.mantra)}</em><span>${escapeHtml(data.meta.edition)}</span></div>
+        <div class="cover-center"><img src="assets/brand/logo-principal.png" alt="Vestalia"><p>${escapeHtml(data.meta.subtitle)}</p><h1>${editorialTitle(data.meta.title)}</h1><em>${escapeHtml(data.meta.mantra)}</em><span>${escapeHtml(data.meta.edition)}</span></div>
       </article>`);
     pages.push(`
       <article class="print-page print-intro-page">
