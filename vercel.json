@@ -1,11 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "fluid": true,
-  "regions": ["gru1"],
   "functions": {
     "api/pdf.js": {
       "maxDuration": 300,
-      "includeFiles": ["assets/**", "print.css", "mobile-print.css", "weasyprint.css"]
+      "regions": ["gru1"],
+      "includeFiles": "{assets/**,*.css}"
     }
   },
   "headers": [
@@ -25,4 +25,3 @@
     }
   ]
 }
-
