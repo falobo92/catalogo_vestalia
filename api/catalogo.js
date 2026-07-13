@@ -1,12 +1,13 @@
-import { CatalogError, validateCatalog } from "../lib/catalog.js";
+import { CatalogError, normalizeCatalogChannel, validateCatalog } from "../lib/catalog.js";
 import { getCatalogState, hasDatabase, saveCatalog } from "../lib/db.js";
 import { requireAdmin } from "../lib/auth.js";
 import { json, methodNotAllowed, readJson, verifySameOrigin } from "../lib/http.js";
 
 export default async function handler(req, res) {
   try {
+    const channel = normalizeCatalogChannel(req.query?.catalogo);
     if (req.method === "GET") {
-      const state = await getCatalogState();
+      const state = await getCatalogState(channel);
       return json(res, 200, { ok: true, ...state });
     }
     if (req.method !== "POST") return methodNotAllowed(res, ["GET", "POST"]);
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
       return json(res, 400, { ok: false, error: "La revisión enviada no es válida." });
     }
     const catalog = validateCatalog(payload?.catalog);
-    const state = await saveCatalog(catalog, revision);
+    const state = await saveCatalog(catalog, revision, channel);
     if (!state) {
       return json(res, 409, {
         ok: false,

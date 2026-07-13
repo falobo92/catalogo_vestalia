@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CatalogError, loadBundledCatalog, validateCatalog } from "../lib/catalog.js";
+import { CatalogError, loadBundledCatalog, normalizeCatalogChannel, validateCatalog } from "../lib/catalog.js";
 
 test("el catálogo incluido contiene la colección completa", () => {
   const catalog = loadBundledCatalog();
@@ -11,6 +11,17 @@ test("el catálogo incluido contiene la colección completa", () => {
   assert.match(catalog.contact.genericMessage, /información para mi cafetería/);
   assert.match(catalog.contact.productMessage, /\{producto\}.*\{formato\}/);
   assert.equal(validateCatalog(catalog).products.length, 27);
+});
+
+test("el catálogo Personas es independiente y está publicable", () => {
+  const people = loadBundledCatalog("personas");
+  assert.equal(people.meta.channel, "personas");
+  assert.equal(people.meta.draft, false);
+  assert.equal(people.meta.priceLabel, "Precio final");
+  assert.match(people.meta.taxNote, /IVA incluido/);
+  assert.ok(people.products.every(product => product.price === "Por definir"));
+  assert.equal(normalizeCatalogChannel("personas"), "personas");
+  assert.equal(normalizeCatalogChannel("desconocido"), "cafeterias");
 });
 
 test("la validación rechaza IDs duplicados y categorías inexistentes", () => {

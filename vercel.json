@@ -9,6 +9,10 @@
     }
   },
   "rewrites": [
+    { "source": "/p/e", "destination": "/editor.html?catalogo=personas" },
+    { "source": "/p/c", "destination": "/api/pdf?tipo=a4&catalogo=personas" },
+    { "source": "/p/m", "destination": "/api/pdf?tipo=movil&catalogo=personas" },
+    { "source": "/p", "destination": "/index.html?catalogo=personas" },
     { "source": "/c", "destination": "/api/pdf?tipo=a4" },
     { "source": "/m", "destination": "/api/pdf?tipo=movil" },
     { "source": "/e", "destination": "/editor.html" }

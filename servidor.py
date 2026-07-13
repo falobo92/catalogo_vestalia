@@ -22,7 +22,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from sync_catalogo import CatalogError, JSON_PATH, ROOT, load_catalog, write_catalog, write_js_fallback
+from sync_catalogo import CatalogError, ROOT, catalog_paths, load_catalog, write_catalog, write_js_fallback
 from miniaturas import generate_all, generate_thumbnail
 
 MAX_CATALOG_BYTES = 5 * 1024 * 1024
@@ -97,20 +97,29 @@ class VestaliaHandler(SimpleHTTPRequestHandler):
     def do_GET(self) -> None:
         route = urlparse(self.path)
         if route.path == "/api/catalogo":
+            channel = "personas" if parse_qs(route.query).get("catalogo", [""])[0] == "personas" else "cafeterias"
             try:
-                self.json_response(load_catalog())
+                self.json_response(load_catalog(channel))
             except CatalogError as error:
                 self.json_response({"ok": False, "error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR)
             return
         if route.path == "/api/estado":
             self.json_response({"ok": True, "mode": "editorial"})
             return
+        if route.path == "/p":
+            self.path = "/index.html"
+        elif route.path == "/p/e":
+            self.path = "/editor.html"
+        elif route.path in {"/p/c", "/p/m"}:
+            self.json_response({"ok": False, "error": "Los PDF Personas se generan desde la versión online."}, HTTPStatus.CONFLICT)
+            return
         super().do_GET()
 
     def do_POST(self) -> None:
         route = urlparse(self.path)
         if route.path == "/api/catalogo":
-            self.save_catalog()
+            channel = "personas" if parse_qs(route.query).get("catalogo", [""])[0] == "personas" else "cafeterias"
+            self.save_catalog(channel)
             return
         if route.path == "/api/imagenes":
             self.save_image(route.query)
@@ -126,23 +135,25 @@ class VestaliaHandler(SimpleHTTPRequestHandler):
             raise CatalogError(f"El archivo supera el límite permitido de {maximum // (1024 * 1024)} MB.")
         return self.rfile.read(length)
 
-    def save_catalog(self) -> None:
-        artifact_paths = (
-            JSON_PATH,
-            ROOT / "data" / "catalog-data.js",
-            ROOT / "print-static.html",
-            ROOT / "Vestalia_Catalogo_Cafeterias.pdf",
-            ROOT / "mobile-print-static.html",
-            ROOT / "Vestalia_Catalogo_Movil.pdf",
-        )
+    def save_catalog(self, channel: str = "cafeterias") -> None:
+        json_path, js_path, _ = catalog_paths(channel)
+        artifact_paths = [json_path, js_path]
+        if channel == "cafeterias":
+            artifact_paths.extend((
+                ROOT / "print-static.html",
+                ROOT / "Vestalia_Catalogo_Cafeterias.pdf",
+                ROOT / "mobile-print-static.html",
+                ROOT / "Vestalia_Catalogo_Movil.pdf",
+            ))
         previous = {path: path.read_bytes() if path.exists() else None for path in artifact_paths}
         try:
             body = self.read_body(MAX_CATALOG_BYTES)
             catalog = json.loads(body.decode("utf-8"))
-            write_catalog(catalog)
-            rebuild_pdf()
-            rebuild_mobile_pdf()
-            self.json_response({"ok": True, "products": len(catalog["products"]), "printStatic": True, "pdf": True, "mobilePdf": True})
+            write_catalog(catalog, channel)
+            if channel == "cafeterias":
+                rebuild_pdf()
+                rebuild_mobile_pdf()
+            self.json_response({"ok": True, "products": len(catalog["products"]), "printStatic": channel == "cafeterias", "pdf": channel == "cafeterias", "mobilePdf": channel == "cafeterias"})
         except (CatalogError, UnicodeDecodeError, json.JSONDecodeError) as error:
             for path, content in previous.items():
                 if content is None:
@@ -209,6 +220,7 @@ def main() -> None:
     try:
         catalog = load_catalog()
         write_js_fallback(catalog)
+        write_js_fallback(load_catalog("personas"), "personas")
         generate_all(product["image"] for product in catalog["products"])
         rebuild_pdf()
         rebuild_mobile_pdf()

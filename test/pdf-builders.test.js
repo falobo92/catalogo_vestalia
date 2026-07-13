@@ -29,3 +29,14 @@ test("las imágenes nuevas alojadas en Blob mantienen su URL", () => {
   catalog.products[0].image = "https://store.public.blob.vercel-storage.com/producto.webp";
   assert.match(buildMobileHtml(catalog, "https://vestalia.example").html, /https:\/\/store\.public\.blob\.vercel-storage\.com\/producto\.webp/);
 });
+
+test("los PDF Personas usan precio final y la identidad agua", () => {
+  const catalog = loadBundledCatalog("personas");
+  const a4 = buildA4Html(catalog, "https://vestalia.example");
+  const mobile = buildMobileHtml(catalog, "https://vestalia.example");
+  assert.match(a4.html, /personas-document/);
+  assert.match(mobile.html, /personas-document/);
+  assert.match(a4.html, /Precio final/);
+  assert.match(mobile.html, /IVA incluido/);
+  assert.doesNotMatch(a4.html, /Valor neto/);
+});

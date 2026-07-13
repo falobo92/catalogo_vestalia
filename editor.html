@@ -2,23 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <script>if (location.pathname.startsWith("/p/")) document.write('<base href="/">');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#11334A">
   <title>Administrar catálogo — Vestalia</title>
-  <link rel="icon" href="assets/brand/isotipo.png">
-  <link rel="stylesheet" href="editor.css">
+  <link rel="icon" href="/assets/brand/isotipo.png">
+  <link rel="stylesheet" href="/editor.css">
 </head>
 <body>
   <header class="editor-header">
-    <a href="index.html" class="editor-brand" aria-label="Abrir catálogo Vestalia">
-      <img src="assets/brand/isotipo.png" alt="" width="110" height="150"><span>Vestalia</span>
-    </a>
+    <div class="editor-brand-group">
+      <a href="/" class="editor-brand" aria-label="Abrir catálogo Vestalia">
+        <img src="/assets/brand/isotipo.png" alt="" width="110" height="150"><span>Vestalia</span>
+      </a>
+      <nav class="editor-catalog-switcher" aria-label="Catálogo a editar"><a href="/e" data-editor-channel="cafeterias">Cafeterías</a><a href="/p/e" data-editor-channel="personas">Personas</a></nav>
+    </div>
     <div class="editor-status" id="server-status"><i></i><span>Comprobando guardado…</span></div>
     <div class="editor-actions">
       <button id="import-trigger" class="ghost" type="button">Importar</button>
       <input id="import-json" type="file" accept="application/json" hidden>
       <button id="export-json" class="ghost" type="button">Descargar respaldo</button>
-      <a class="preview-link" href="index.html" target="_blank">Ver catálogo <span aria-hidden="true">↗</span></a>
+      <a class="preview-link" href="/" target="_blank">Ver catálogo <span aria-hidden="true">↗</span></a>
       <button id="logout" class="ghost cloud-only" type="button" hidden>Salir</button>
       <button id="save-catalog" class="primary" type="button">Guardar catálogo</button>
     </div>
@@ -50,8 +54,8 @@
       <div class="content-tools" aria-label="Administrar contenido del catálogo">
         <button id="manage-categories" type="button"><span>◫</span><strong>Categorías</strong><small>Nombres, orden y color PDF</small></button>
         <button id="manage-settings" type="button"><span>⚙</span><strong>Contenido general</strong><small>Precios, servicio y contacto</small></button>
-        <a id="editor-pdf-a4" href="Vestalia_Catalogo_Cafeterias.pdf" target="_blank"><span>A4</span><strong>PDF para imprimir</strong><small>Edición vertical tamaño A4</small></a>
-        <a id="editor-pdf-mobile" href="Vestalia_Catalogo_Movil.pdf" target="_blank"><span>9:16</span><strong>PDF para celular</strong><small>Edición optimizada para teléfono</small></a>
+        <a id="editor-pdf-a4" href="/c" target="_blank"><span>A4</span><strong>PDF para imprimir</strong><small>Edición vertical tamaño A4</small></a>
+        <a id="editor-pdf-mobile" href="/m" target="_blank"><span>9:16</span><strong>PDF para celular</strong><small>Edición optimizada para teléfono</small></a>
         <button id="regenerate-pdf" class="cloud-only" type="button" hidden><span>↻</span><strong>Regenerar PDF</strong><small>Actualiza ambas ediciones</small></button>
       </div>
 
@@ -90,11 +94,11 @@
         </section>
 
         <section class="form-section">
-          <div class="form-section-heading"><span>03</span><div><h2>Venta y presentación</h2><p>Datos que ayudan a la cafetería a tomar una decisión.</p></div></div>
+          <div class="form-section-heading"><span>03</span><div><h2>Venta y presentación</h2><p id="sale-section-help">Datos que ayudan a la cafetería a tomar una decisión.</p></div></div>
           <div class="form-grid three">
             <label>Peso<input id="field-weight" placeholder="93 g aprox."></label>
             <label>Formato<input id="field-format" placeholder="Unidad" required></label>
-            <label>Precio neto<input id="field-price" placeholder="$1.366 + IVA" required></label>
+            <label><span id="field-price-label">Precio neto</span><input id="field-price" placeholder="$1.366 + IVA" required></label>
           </div>
         </section>
 
@@ -143,6 +147,11 @@
       <div><p>Contenido transversal</p><h2 id="settings-title">Contenido general</h2></div>
       <button class="dialog-x" type="button" data-close-dialog="settings-dialog" aria-label="Cerrar">×</button>
     </div>
+
+    <section class="dialog-section" id="setting-publication" hidden>
+      <div class="dialog-section-title"><span>●</span><div><h3>Publicación</h3><p>Mientras sea borrador, Personas no aparecerá enlazado desde Cafeterías.</p></div></div>
+      <label class="publication-toggle"><input id="setting-published" type="checkbox"> Publicar y mostrar el catálogo Personas</label>
+    </section>
 
     <section class="dialog-section">
       <div class="dialog-section-title"><span>01</span><div><h3>Portada y textos</h3><p>Información que se reutiliza en la web y el PDF.</p></div></div>
@@ -237,7 +246,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/catalog-data.js"></script>
-  <script src="editor.js"></script>
+  <script src="/data/catalog-data.js"></script>
+  <script src="/data/catalog-personas-data.js"></script>
+  <script src="/editor.js"></script>
 </body>
 </html>
