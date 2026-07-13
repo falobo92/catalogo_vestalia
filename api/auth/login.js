@@ -1,4 +1,4 @@
-import { clearLoginFailures, loginStatus, registerLoginFailure } from "../../lib/db.js";
+import { clearLoginFailures, hasDatabase, loginStatus, registerLoginFailure } from "../../lib/db.js";
 import { clientIp, createSession, hashIp, sessionCookie, verifyPassword } from "../../lib/auth.js";
 import { json, methodNotAllowed, readJson, verifySameOrigin } from "../../lib/http.js";
 
@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     if (!process.env.ADMIN_PASSWORD_HASH || !process.env.SESSION_SECRET) {
       return json(res, 503, { ok: false, error: "El acceso administrativo todavía no está configurado." });
     }
+    if (!hasDatabase()) return json(res, 503, { ok: false, error: "Neon todavía no está configurado." });
 
     const ipHash = hashIp(clientIp(req));
     const current = await loginStatus(ipHash);
