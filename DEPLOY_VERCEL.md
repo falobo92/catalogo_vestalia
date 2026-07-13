@@ -39,7 +39,7 @@ El primer despliegue permite abrir el catálogo y los PDF incluidos. El editor t
 5. Conecta el recurso a **Production**, **Preview** y **Development**.
 6. Comprueba en **Settings → Environment Variables** que aparece `DATABASE_URL`, `POSTGRES_URL` o `NEON_DATABASE_URL`.
 
-No necesitas ejecutar migraciones: al abrir `/api/catalogo`, Vestalia crea las tablas, carga los 27 productos y comienza en la revisión 0 automáticamente.
+No necesitas ejecutar migraciones: al abrir `/api/catalogo`, Vestalia crea las tablas, carga los 27 productos y comienza en la revisión 0 automáticamente. La migración de puesta en marcha conserva el catálogo, actualiza el contacto, limpia el historial temporal y retira únicamente los PDF Blob anteriores; las imágenes subidas se mantienen.
 
 ## 3. Crear Vercel Blob
 
