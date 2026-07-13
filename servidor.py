@@ -106,9 +106,15 @@ class VestaliaHandler(SimpleHTTPRequestHandler):
         if route.path == "/api/estado":
             self.json_response({"ok": True, "mode": "editorial"})
             return
-        if route.path == "/p":
+        if route.path in {"/e", "/e/"}:
+            self.path = "/editor.html"
+        elif route.path in {"/c", "/c/"}:
+            self.path = "/Vestalia_Catalogo_Cafeterias.pdf"
+        elif route.path in {"/m", "/m/"}:
+            self.path = "/Vestalia_Catalogo_Movil.pdf"
+        elif route.path in {"/p", "/p/"}:
             self.path = "/index.html"
-        elif route.path == "/p/e":
+        elif route.path in {"/p/e", "/p/e/"}:
             self.path = "/editor.html"
         elif route.path in {"/p/c", "/p/m"}:
             self.json_response({"ok": False, "error": "Los PDF Personas se generan desde la versión online."}, HTTPStatus.CONFLICT)
